@@ -23,25 +23,25 @@ services:
     depends_on: [consul]
 
   reference-ui:
-    image: openlmis/reference-ui:${OL_REFERENCE_UI_VERSION}
+    image: olmisng/ri-ui:latest
     env_file: settings.env
     depends_on: [consul]
 
   requisition:
-    image: openlmis/requisition:${OL_REQUISITION_VERSION}
+    image: olmisng/requisition-ri:system-upgrade-2023
     env_file: settings.env
     environment:
-      JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml'
+      JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml'
     volumes:
       - 'service-config:/config'
     depends_on: [log, db]
     command: ["/wait-for-postgres.sh", "/run.sh"]
 
   referencedata:
-    image: openlmis/referencedata:${OL_REFERENCEDATA_VERSION}
+    image: olmisng/referencedata-ri:system-upgrade-2023
     env_file: settings.env
     environment:
-      JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml'
+      JAVA_OPTS: '-server -Xmx7g -Dlogging.config=/config/log/logback.xml'
     volumes:
       - 'service-config:/config'
     depends_on: [log, db]
@@ -51,14 +51,14 @@ services:
     image: openlmis/auth:${OL_AUTH_VERSION}
     env_file: settings.env
     environment:
-      JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml'
+      JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml'
     volumes:
       - 'service-config:/config'
     depends_on: [log, db]
     command: ["/wait-for-postgres.sh", "/run.sh"]
 
   notification:
-    image: openlmis/notification:${OL_NOTIFICATION_VERSION}
+    image: olmisng/notification-ri:latest
     env_file: settings.env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml'
@@ -68,17 +68,17 @@ services:
     command: ["/wait-for-postgres.sh", "/run.sh"]
 
   fulfillment:
-    image: openlmis/fulfillment:${OL_FULFILLMENT_VERSION}
+    image: olmisng/fulfillment-ri:system-upgrade-2023
     env_file: settings.env
     environment:
-      JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml'
+      JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml'
     volumes:
       - 'service-config:/config'
     depends_on: [log, db]
     command: ["/wait-for-postgres.sh", "/run.sh"]
 
   cce:
-    image: openlmis/cce:${OL_CCE_VERSION}
+    image: olmisng/cce-ri:latest
     env_file: settings.env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml'
@@ -88,17 +88,17 @@ services:
     command: ["/wait-for-postgres.sh", "/run.sh"]
 
   stockmanagement:
-    image: openlmis/stockmanagement:${OL_STOCKMANAGEMENT_VERSION}
+    image: olmisng/stockmanagement-ri:openhim-on-receive-fix
     env_file: settings.env
     environment:
-      JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml'
+      JAVA_OPTS: '-server -Xmx12g -Dlogging.config=/config/log/logback.xml'
     volumes:
       - 'service-config:/config'
     depends_on: [log, db]
     command: ["/wait-for-postgres.sh", "/run.sh"]
 
   report:
-    image: openlmis/report:${OL_REPORT_VERSION}
+    image: olmisng/report-ri:latest
     env_file: settings.env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml'
@@ -132,6 +132,8 @@ services:
   db:
     image: openlmis/postgres:${OL_POSTGRES_VERSION}
     env_file: settings.env
+    ports:
+      - "9999:5432"
     networks:
       default:
         aliases:
@@ -153,7 +155,7 @@ services:
       - service-config:/config
 
   ftp:
-    image: hauptmedia/proftpd
+    image: driesva/proftpd
     ports:
       - "${OL_FTP_PORT_21:-21}:21"
       - "${OL_FTP_PORT_20:-20}:20"
